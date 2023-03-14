@@ -207,9 +207,9 @@ const change_pass = () => {
 const chooseFile = (e) => {
     var details = e.fileDetails;
     if (details.isFile) {
-        var filterPath = details.filterPath.replace(/\\\\/g, "\/").replace(/\\/g, "\/");
+        var filterPath = details.filterPath.replace(/\\\\/g, "\/");
         var name = details.name;
-        var path = "/private/upload/" + user.id + filterPath + name;
+        var path = "/private/upload/" + user.id  + filterPath + name;
         data.value.image_url = path;
         fileDialog.value = false;
     }

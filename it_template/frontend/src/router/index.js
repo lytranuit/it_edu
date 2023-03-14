@@ -52,6 +52,22 @@ const router = createRouter({
             transition: "fade",
           },
         },
+        {
+          path: "add",
+          component: () => import("../views/courses/Add.vue"),
+          meta: {
+            layout: adminLayout,
+            transition: "fade",
+          },
+        },
+        {
+          path: "edit",
+          component: () => import("../views/courses/Edit.vue"),
+          meta: {
+            layout: adminLayout,
+            transition: "fade",
+          },
+        },
       ],
     },
     {

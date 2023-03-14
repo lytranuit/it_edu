@@ -3,7 +3,10 @@
         <Toast />
         <div class="col-12">
             <h5 class="card-header drag-handle">
-                <Button label="Tạo mới" icon="pi pi-plus" class="p-button-success p-button-sm mr-2"></Button>
+                <RouterLink to="/courses/add">
+                    <Button label="Tạo mới" icon="pi pi-plus" class="p-button-success p-button-sm mr-2"></Button>
+                </RouterLink>
+
                 <Button label="Xóa" icon="pi pi-trash" class="p-button-danger p-button-sm" @click="confirmDeleteSelected"
                     :disabled="!selectedProducts || !selectedProducts.length"></Button>
             </h5>

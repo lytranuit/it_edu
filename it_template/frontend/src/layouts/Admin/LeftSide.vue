@@ -19,6 +19,15 @@
           <li class="nav-item">
             <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Khóa học</router-link>
           </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Topics</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Kho câu hỏi</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Kho đề thi</router-link>
+          </li>
         </ul>
       </li>
 

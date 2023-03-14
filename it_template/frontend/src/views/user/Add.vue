@@ -155,7 +155,7 @@ const chooseFile = (e) => {
     console.log(e);
     var details = e.fileDetails;
     if (details.isFile) {
-        var filterPath = details.filterPath.replace(/\\\\/g, "\/");
+        var filterPath = details.filterPath.replace(/\\\\/g, "\/").replace(/\\/g, "\/");
         var name = details.name;
         var path = "/private/upload/" + user.id + filterPath + name;
         console.log(path);

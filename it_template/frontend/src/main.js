@@ -4,13 +4,14 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 import PrimeVue from "primevue/config";
-import ToastService from 'primevue/toastservice';
-
+import ToastService from "primevue/toastservice";
+import ConfirmationService from "primevue/confirmationservice";
 
 // import "primevue/resources/themes/bootstrap4-light-blue/theme.css"; //theme
 import "@/assets/styles.scss";
 
 const app = createApp(App);
+app.use(ConfirmationService);
 app.use(ToastService);
 app.use(PrimeVue);
 app.use(createPinia());

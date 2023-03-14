@@ -166,6 +166,48 @@ namespace it_template.Areas.FileManager.Controllers
 
 			return this.operation.GetImage(args.Path, args.Id, false, null, null);
 		}
+
+		[Route("fileupload")]
+		[HttpPost]
+		public async Task<JsonResult> fileupload(string id)
+		{
+			var files = Request.Form.Files;
+			//return Json(files);
+			if (files != null && files.Count > 0)
+			{
+				var items = new List<string>();
+				var pathroot = _configuration["Source:Path_Private"] + "\\courses\\" + id;
+				bool exists = System.IO.Directory.Exists(pathroot);
+
+				if (!exists)
+					System.IO.Directory.CreateDirectory(pathroot);
+				foreach (var file in files)
+				{
+					var timeStamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+					string name = file.FileName;
+					string ext = Path.GetExtension(name);
+					string mimeType = file.ContentType;
+
+					//var fileName = Path.GetFileName(name);
+					var newName = timeStamp + " - " + name;
+					newName = newName.Replace("+", "_");
+					newName = newName.Replace("%", "_");
+					var filePath = pathroot + "\\" + newName;
+					string url = "/private/courses/" + id + "/" + newName;
+					items.Add(url);
+
+					using (var fileSrteam = new FileStream(filePath, FileMode.Create))
+					{
+						await file.CopyToAsync(fileSrteam);
+					}
+				}
+				//_context.AddRange(items);
+				//_context.SaveChanges();
+				return Json(new { success = 1, items = items });
+			}
+			return Json(new { message = "Lỗi" });
+		}
+
 	}
 
 }

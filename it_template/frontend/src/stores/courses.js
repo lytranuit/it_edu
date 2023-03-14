@@ -115,7 +115,7 @@ export const useCoursesStore = defineStore("courses", () => {
   ]);
   const totalLesson = computed(() => {
     let total = 0;
-    for (let m of moduleList.value) {
+    for (let m of chapterList.value) {
       total += m.lessons.length;
     }
     return total;
