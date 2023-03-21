@@ -17,6 +17,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http.Features;
 //using Vue.Middleware;
 
 namespace Vue
@@ -73,7 +74,6 @@ namespace Vue
 				"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 				options.User.RequireUniqueEmail = true;
 			});
-
 			builder.Services.ConfigureApplicationCookie(options =>
 			{
 				// Cookie settings

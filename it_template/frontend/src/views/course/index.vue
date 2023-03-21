@@ -1,16 +1,70 @@
 <template>
     <div class="layout-wrapper">
         <Toast />
+        <ConfirmDialog></ConfirmDialog>
         <Topbar></Topbar>
+        <Loading :waiting="waiting"></Loading>
         <div class="layout-main-container">
             <div class="layout-main" :class="{ 'open-lecture-list': visibleLecture }">
                 <div class="study-content">
                     <div class="section-main-content bg-dark">
                         <div class="container">
-                            <div class="playing-lecture d-flex justify-content-center w-100" style="padding: 40px 0px;">
-                                <embed src="/1677749324.pdf"
-                                    style="min-height: 450px;height: calc(100vh - 270px); width: 100%; border: 1px solid white;"
-                                    type="application/pdf">
+                            <div class="playing-lecture d-flex justify-content-center w-100"
+                                style="padding: 40px 0px;min-height: 80vh;">
+
+                                <div style="background-color: white;padding: 20px;width: 100%;"
+                                    v-if="currentLesson.type == 1" v-html="currentLesson.text"></div>
+                                <embed :src="currentLesson.file_up.url"
+                                    style="height: 70vh; width: 100%; border: 1px solid white;" type="application/pdf"
+                                    v-else-if="currentLesson.type == 4">
+                                <iframe style="height: 70vh; width: 100%; border: 1px solid white;"
+                                    :src="'https://www.youtube.com/embed/' + currentLesson.youtube_id"
+                                    v-else-if="currentLesson.type == 3">
+                                </iframe>
+                                <video style="height: 70vh; width: 100%; border: 1px solid white;" autoplay controls
+                                    v-else-if="currentLesson.type == 2">
+                                    <source :src="currentLesson.file_up.url" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div style="max-width: 50rem;width: 100%" class="mx-auto">
+                            <div class="file-page-playing my-4"
+                                v-if="currentLesson.attachments_up && currentLesson.attachments_up.length">
+                                <div class="file-page-playing-list">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <p class="font-weight-bolder color_label f-18 mb-0">Tài liệu đính kèm bài giảng
+                                            </p>
+                                        </div>
+                                        <div class="col-12" v-for="attachment in currentLesson.attachments_up">
+                                            <div class="list-attachment mt-3 d-flex justify-content-between">
+                                                <i class="fas fa-file" style="font-size:40px;"></i>
+                                                <div class="file-info my-auto">
+                                                    <p class="file-name mb-0 ellipsis line-clamp"
+                                                        style="overflow-wrap: anywhere;">
+                                                        {{ attachment.name }}
+                                                    </p>
+                                                    <span>
+                                                        {{ attachment.ext }}
+                                                        <span class="mx-2">|</span>
+                                                        {{ formatSize(attachment.size) }}
+                                                    </span>
+                                                </div>
+
+                                                <div class="my-auto ml-3">
+                                                    <a class="btn btn-sm btn-download-file-white" :href="attachment.url"
+                                                        :download="attachment.name" style="text-decoration: none">
+                                                        <i class="fas fa-download"></i>
+                                                        Tải về
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -44,17 +98,21 @@
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
-                                <Accordion class="accordion-custom" :multiple="true" :activeIndex="[0]">
-                                    <AccordionTab v-for="option in chapterList" :header="option.title">
+                                <Accordion class="accordion-custom" :multiple="true" :activeIndex="activeIndex">
+                                    <AccordionTab v-for="option in chapterList" :header="option.title"
+                                        contentClass="accordion-custom">
                                         <div class="list-section-body">
                                             <ul class="list-unstyled mb-0">
-                                                <li v-for="lesson of option.lessons"
-                                                    class="d-flex align-items-center pointer">
-                                                    <i class="mr-3" :class="icon_class_lesson(lesson.id)"></i>
+                                                <li class="d-flex align-items-center pointer"
+                                                    v-for="lesson of option.lessons"
+                                                    :class="{ 'active': currentLesson.id == lesson.id }"
+                                                    @click="clickLesson(lesson)">
+                                                    <i class="mr-3" :class="icon_class_lesson(lesson)"></i>
                                                     <span class="content-title">
                                                         {{ lesson.title }}
                                                     </span>
-                                                    <span class="duration"></span>
+                                                    <span class="duration" v-if="lesson.duration > 0">{{
+                                                        formatTime(lesson.duration) }}</span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -71,45 +129,47 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, computed } from 'vue';
-import { useAxios } from "../../service/axios";
+import { onMounted, watch, } from 'vue';
 import Topbar from '../../components/courses/Topbar.vue';
 // import the component
 import Accordion from 'primevue/accordion';
 import AccordionTab from 'primevue/accordiontab';
 
 import Toast from 'primevue/toast';
-import { useToast } from "primevue/usetoast";
 import { storeToRefs } from "pinia";
-import { useCoursesStore } from '../../stores/courses';
-const courses_store = useCoursesStore();
-const toast = useToast();
+import { useCoursesStore1 } from '../../stores/courses';
+import { useRoute } from 'vue-router';
 
-const { axiosinstance } = useAxios();
+import { formatSize, formatTime } from '../../utilities/util'
+import Loading from '../../components/Loading.vue';
+import ConfirmDialog from 'primevue/confirmdialog';
+const route = useRoute();
+const courses_store = useCoursesStore1();
 
-const { chapterList, totalLesson, personInfo } = storeToRefs(courses_store);
+const { chapterList, totalLesson, personInfo, currentLesson, activeIndex, course, lessonList, waiting, visibleLecture } = storeToRefs(courses_store);
 
-const visibleLecture = ref(true);
-const currentLesson = ref();
+// console.log(currentLesson.value)
+const { toogle_lecture, setCurrentLesson, getData, icon_class_lesson, clickLesson } = courses_store
 
-const toogle_lecture = () => {
-    visibleLecture.value = !visibleLecture.value;
-}
-const icon_class_lesson = (lesson_id) => {
-    let list_lesson_pass = personInfo.value.list_lesson_pass;
-    let current_lesson = personInfo.value.current_lesson;
-    if (list_lesson_pass.indexOf(lesson_id) != -1) {
-        return 'fas fa-check-circle text-success';
-    } else if (current_lesson == lesson_id) {
-        return 'far fa-play-circle text-danger';
-    }
-    return 'far fa-circle';
-}
 onMounted(() => {
+    getData(route.params.id).then(() => {
+        if (route.query.lesson_id > 0)
+            setCurrentLesson(route.query.lesson_id);
+        else
+            setCurrentLesson(lessonList.value[0].id);
+    });
 
 })
+watch(() => route.query.lesson_id,
+    async newId => {
+        setCurrentLesson(newId);
+    })
 </script>
 <style scoped lang="scss">
+.p-toggleable-content {
+    margin: 20px;
+}
+
 .toogle-lecture-list-btn {
     position: absolute;
     right: 0;
@@ -162,6 +222,16 @@ onMounted(() => {
         color: #334d6e;
         font-size: 12px;
         line-height: 16px;
+        padding: 15px;
+        border-bottom: 1px dotted black;
+
+        &.active {
+            background: #ffe6ee
+        }
+
+        &:hover {
+            background: #ffe6ee
+        }
     }
 }
 
@@ -289,12 +359,57 @@ onMounted(() => {
     background: #ffe6ee
 }
 
-.list-lecture .lecture-body .list-section .list-section-body ul li .content-title {
+.content-title {
     width: calc(100% - 80px)
 }
 
-.list-lecture .lecture-body .list-section .list-section-body ul li .duration {
+.duration {
     width: 60px;
-    text-align: end
+    text-align: end;
+    margin-left: auto
+}
+
+.file-page-playing-list .list-attachment {
+    border: 1px solid #c4c4c4;
+    background: #fff;
+    border-radius: 4px;
+    padding: .5rem
+}
+
+.file-page-playing-list .list-attachment .file-info {
+    width: calc(100% - 150px)
+}
+
+.file-page-playing-list .list-attachment .file-info .file-name {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 21px;
+    color: #334d6e;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical
+}
+
+.file-page-playing-list .list-attachment .file-info span {
+    font-size: 12px;
+    line-height: 21px;
+    color: #6b7077
+}
+
+.file-page-playing-list .list-attachment .btn-download-file-white {
+    color: #334d6e;
+    background: #fff;
+    border: 1px solid #334d6e;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .2s ease-in-out
+}
+
+.file-page-playing-list .list-attachment .btn-download-file-white:active,
+.file-page-playing-list .list-attachment .btn-download-file-white:hover {
+    background: #e0eeff
 }
 </style>

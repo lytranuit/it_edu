@@ -30,7 +30,6 @@
 
 <script setup>
 import { onMounted, ref, watch, computed } from 'vue';
-import moment from 'moment';
 import { useAxios } from "../../service/axios";
 import Treeselect from 'vue3-acies-treeselect'
 // import the styles

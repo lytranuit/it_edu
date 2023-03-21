@@ -3,10 +3,8 @@
         <Toast />
         <div class="col-12">
             <h5 class="card-header drag-handle">
-                <RouterLink to="/courses/add">
-                    <Button label="Tạo mới" icon="pi pi-plus" class="p-button-success p-button-sm mr-2"></Button>
-                </RouterLink>
-
+                <Button label="Tạo mới" icon="pi pi-plus" class="p-button-success p-button-sm mr-2"
+                    @click="openNew"></Button>
                 <Button label="Xóa" icon="pi pi-trash" class="p-button-danger p-button-sm" @click="confirmDeleteSelected"
                     :disabled="!selectedProducts || !selectedProducts.length"></Button>
             </h5>
@@ -56,10 +54,27 @@
             </section>
         </div>
 
+        <Dialog v-model:visible="productDialog" :header="headerForm" :modal="true" class="p-fluid">
+
+            <div class="row mb-2">
+                <div class="field col">
+                    <label for="name">Tên <span class="text-danger">*</span></label>
+                    <input id="name" class="form-control form-control-sm" v-model.trim="model.name" required="true"
+                        :class="{ 'p-invalid': submitted && !model.name }" />
+                    <small class="p-error" v-if="submitted && !model.name">Required.</small>
+                </div>
+            </div>
+
+            <template #footer>
+                <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="hideDialog"></Button>
+                <Button label="Save" icon="pi pi-check" class="p-button-text" @click="saveProduct"></Button>
+            </template>
+        </Dialog>
+
         <Dialog v-model:visible="deleteProductDialog" header="Xác nhận" :modal="true">
             <div class="confirmation-content">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                <span v-if="model">Bạn có muốn xóa <b>{{ model.id }}</b> này không?</span>
+                <span v-if="model">Bạn có muốn xóa <b>{{ model.name }}</b> này không?</span>
             </div>
             <template #footer>
                 <Button label="Không" icon="pi pi-times" class="p-button-text"
@@ -80,18 +95,17 @@
             </template>
         </Dialog>
         <Loading :waiting="waiting"></Loading>
+
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref, watch, computed, provide } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import Loading from '../../components/Loading.vue';
 import { useAxios } from "../../service/axios";
 import Treeselect from 'vue3-acies-treeselect';
-// import { storeToRefs } from 'pinia'
 // import the styles
 import 'vue3-acies-treeselect/dist/vue3-treeselect.css';
-
 // import the component
 
 import DataTable from 'primevue/datatable';
@@ -106,39 +120,32 @@ import { useToast } from "primevue/usetoast";
 const toast = useToast();
 
 const { axiosinstance } = useAxios();
-
 ////Datatable
 const datatable = ref();
 const columns = ref([
     {
         id: 0,
-        label: "id",
+        label: "ID",
         data: "id",
-        className: "text-center"
-    },
-    {
-        id: 1,
-        label: "Tiêu đề",
-        data: "title",
         className: "text-center",
         filter: true,
     },
     {
-        id: 2,
-        label: "Mã khóa học",
-        data: "code",
+        id: 1,
+        label: "Tên",
+        data: "name",
         className: "text-center",
         filter: true,
     }
 ])
 const filters = ref({
-    'title': { value: null, matchMode: FilterMatchMode.CONTAINS },
-    'code': { value: null, matchMode: FilterMatchMode.CONTAINS }
+    'id': { value: null, matchMode: FilterMatchMode.CONTAINS },
+    'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
 const totalRecords = ref(0);
 const loading = ref(true);
 const showing = ref([]);
-const column_cache = "columns_courses"; ////
+const column_cache = "columns_group"; ////
 const first = ref(0);
 const rows = ref(10);
 const draw = ref(0);
@@ -162,8 +169,11 @@ const dt = ref(null);
 
 ////Form
 const model = ref();
+const old_key = ref();
+const submitted = ref();
+const headerForm = ref("");
 ///Control
-const fileDialog = ref();
+const productDialog = ref();
 const deleteProductsDialog = ref();
 const deleteProductDialog = ref();
 const waiting = ref(false);
@@ -171,7 +181,7 @@ const waiting = ref(false);
 ////Data table
 const loadLazyData = () => {
     loading.value = true;
-    axiosinstance.post("/v1/course/table", lazyParams.value, {
+    axiosinstance.post("/v1/group/table", lazyParams.value, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -191,6 +201,60 @@ const onPage = (event) => {
     loadLazyData();
 };
 
+///Form
+const valid = () => {
+    if (!model.value.name.trim())
+        return false;
+    return true;
+}
+const saveProduct = () => {
+    submitted.value = true;
+    if (!valid())
+        return;
+    waiting.value = true;
+    model.value.old_key = old_key.value;
+    // for (let key in model.value) {
+    //     if (model.value[key] == null) model.value[key] = '';
+    // }
+    axiosinstance.post("/v1/group/save", model.value, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    }).then((res) => {
+        return res.data;
+    }).then((res) => {
+        waiting.value = false;
+        if (res.success) {
+            if (model.value.old_key != null) {
+                //edit
+                toast.add({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật ' + model.value.name + ' thành công', life: 3000 });
+            }
+            else {
+                toast.add({ severity: 'success', summary: 'Thành công', detail: 'Tạo mới thành công', life: 3000 });
+            }
+        } else {
+            toast.add({ severity: 'error', summary: 'Lỗi', detail: res.message, life: 3000 });
+        }
+        loadLazyData();
+        model.value = {};
+        productDialog.value = false;
+    });
+
+
+};
+const editProduct = (m) => {
+    old_key.value = m.id;
+    headerForm.value = m.name;
+    model.value = { ...m };
+    productDialog.value = true;
+};
+const openNew = () => {
+    model.value = {};
+    old_key.value = null;
+    headerForm.value = "Tạo mới";
+    submitted.value = false;
+    productDialog.value = true;
+}
 const confirmDeleteSelected = () => {
     deleteProductsDialog.value = true;
 }
@@ -198,9 +262,13 @@ const confirmDeleteProduct = (m) => {
     model.value = m;
     deleteProductDialog.value = true;
 }
+const hideDialog = () => {
+    productDialog.value = false;
+    submitted.value = false;
+}
 const deleteProduct = () => {
     waiting.value = true;
-    axiosinstance.post("/v1/course/remove", { item: [model.value.maNSX] }, {
+    axiosinstance.post("/v1/group/remove", { item: [model.value.id] }, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -222,11 +290,11 @@ const deleteProduct = () => {
 };
 const deleteSelectedProducts = () => {
     // datatable.value = datatable.value.filter(val => !selectedProducts.value.includes(val));
-    let item = selectedProducts.value.map((item) => {
-        return item.maNSX;
+    let items = selectedProducts.value.map((item) => {
+        return item.id;
     })
     waiting.value = true;
-    axiosinstance.post("/v1/course/remove", { item: list_maNSX }, {
+    axiosinstance.post("/v1/group/remove", { item: items }, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -245,6 +313,7 @@ const deleteSelectedProducts = () => {
         loadLazyData();
     });
 };
+
 
 ////Core
 onMounted(() => {

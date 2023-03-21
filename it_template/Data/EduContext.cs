@@ -18,10 +18,19 @@ namespace Vue.Data
 		}
 
 		public DbSet<AuditTrailsModel> AuditTrailsModel { get; set; }
-		public DbSet<CoursesModel> CoursesModel { get; set; }
-		public DbSet<ChaptersModel> ChaptersModel { get; set; }
-		public DbSet<LessonsModel> LessonsModel { get; set; }
+		public DbSet<CourseModel> CourseModel { get; set; }
+		public DbSet<ChapterModel> ChapterModel { get; set; }
+		public DbSet<LessonModel> LessonModel { get; set; }
+		public DbSet<LessonAttachmentModel> LessonAttachmentModel { get; set; }
+		public DbSet<LessonFileModel> LessonFileModel { get; set; }
+		public DbSet<TypeModel> TypeModel { get; set; }
+		public DbSet<GroupModel> GroupModel { get; set; }
+		public DbSet<TopicModel> TopicModel { get; set; }
+		public DbSet<QuestionModel> QuestionModel { get; set; }
+		public DbSet<ExamModel> ExamModel { get; set; }
 
+		public DbSet<LessonPassModel> LessonPassModel { get; set; }
+		public DbSet<CoursePassModel> CoursePassModel { get; set; }
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			//modelBuilder.Entity<IdentityUser>().ToTable("AspNetUsers");

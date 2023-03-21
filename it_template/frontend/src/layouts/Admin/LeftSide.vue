@@ -13,21 +13,55 @@
         <a href="javascript: void(0);">
           <i class="ti-briefcase"></i>
           <span>Thiết lập</span>
-          <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span>
+          <span class="menu-arrow"><i class="mdi mdi-chevron-down"></i></span>
         </a>
         <ul class="nav-second-level" aria-expanded="false">
           <li class="nav-item">
-            <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Khóa học</router-link>
+            <a href="javascript: void(0);">
+              <i class="ti-control-record"></i>
+              Khóa học
+              <span class="menu-arrow"><i class="mdi mdi-chevron-down"></i></span>
+            </a>
+            <ul class="nav-second-level" aria-expanded="false">
+              <li class="nav-item">
+                <router-link to="/course">
+                  <i class="ti-control-record"></i>
+                  Khóa học
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link to="/group">
+                  <i class="ti-control-record"></i>
+                  Nhóm đào tạo
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link to="/type">
+                  <i class="ti-control-record"></i>
+                  Loại đào tạo
+                </router-link>
+              </li>
+            </ul>
           </li>
           <li class="nav-item">
-            <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Topics</router-link>
+            <a href="javascript: void(0);">
+              <i class="ti-control-record"></i>
+              Trung tâm bài thi
+              <span class="menu-arrow"><i class="mdi mdi-chevron-down"></i></span>
+            </a>
+            <ul class="nav-second-level" aria-expanded="false">
+              <li class="nav-item">
+                <router-link class="nav-link" to="/exam"><i class="ti-control-record"></i>Kho bài thi</router-link>
+              </li>
+              <li class="nav-item">
+                <router-link class="nav-link" to="/question"><i class="ti-control-record"></i>Kho câu hỏi</router-link>
+              </li>
+              <li class="nav-item">
+                <router-link class="nav-link" to="/topic"><i class="ti-control-record"></i>Topics</router-link>
+              </li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Kho câu hỏi</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link" to="/courses"><i class="ti-control-record"></i>Kho đề thi</router-link>
-          </li>
+
         </ul>
       </li>
 
@@ -42,7 +76,7 @@
         <a href="javascript: void(0);">
           <i class="ti-briefcase"></i>
           <span>Hệ thống</span>
-          <span class="menu-arrow"><i class="mdi mdi-chevron-right"></i></span>
+          <span class="menu-arrow"><i class="mdi mdi-chevron-down"></i></span>
         </a>
 
         <ul class="nav-second-level" aria-expanded="false">

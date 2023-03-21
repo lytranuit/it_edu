@@ -2,10 +2,10 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 
 import { storeToRefs } from "pinia";
-import { useCoursesStore } from '../../stores/courses';
-const courses_store = useCoursesStore();
+import { useCoursesStore1 } from '../../stores/courses';
+const courses_store = useCoursesStore1();
 
-const { percentageCompleted, courses } = storeToRefs(courses_store);
+const { percentageCompleted, course } = storeToRefs(courses_store);
 onMounted(() => {
 
 });
@@ -22,7 +22,7 @@ onMounted(() => {
         <div class="d-flex mr-3" style="flex:1">
             <div style="max-width: 100%;">
                 <h5 class="nav-item mb-0 ellipsis line-clamp">
-                    <strong>{{ courses.code }} - {{ courses.title }} </strong>
+                    <strong>{{ course.code }} - {{ course.title }} </strong>
                 </h5>
             </div>
 

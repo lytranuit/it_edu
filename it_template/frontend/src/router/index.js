@@ -29,7 +29,7 @@ const router = createRouter({
     },
 
     {
-      path: "/courses",
+      path: "/course",
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
@@ -42,11 +42,11 @@ const router = createRouter({
       children: [
         {
           path: "",
-          component: () => import("../views/courses/List.vue"),
+          component: () => import("../views/course/List.vue"),
         },
         {
-          path: "learn",
-          component: () => import("../views/courses/index.vue"),
+          path: "learn/:id",
+          component: () => import("../views/course/index.vue"),
           meta: {
             layout: defaultLayout,
             transition: "fade",
@@ -54,21 +54,125 @@ const router = createRouter({
         },
         {
           path: "add",
-          component: () => import("../views/courses/Add.vue"),
+          component: () => import("../views/course/Add.vue"),
           meta: {
             layout: adminLayout,
             transition: "fade",
           },
         },
         {
-          path: "edit",
-          component: () => import("../views/courses/Edit.vue"),
+          path: "edit/:id",
+          component: () => import("../views/course/Edit.vue"),
           meta: {
             layout: adminLayout,
             transition: "fade",
           },
         },
       ],
+    },
+    {
+      path: "/group",
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import("../views/group/List.vue"),
+      meta: {
+        layout: adminLayout,
+        transition: "fade",
+        title: "Nhóm loại đào tạo",
+      },
+    },
+    {
+      path: "/topic",
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import("../views/topic/List.vue"),
+      meta: {
+        layout: adminLayout,
+        transition: "fade",
+        title: "Topics",
+      },
+    },
+    {
+      path: "/question",
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      // component: () => import("../views/question/List.vue"),
+      meta: {
+        layout: adminLayout,
+        transition: "fade",
+        title: "Kho câu hỏi",
+      },
+      children: [
+        {
+          path: "",
+          component: () => import("../views/question/List.vue"),
+        },
+        {
+          path: "add",
+          component: () => import("../views/question/Add.vue"),
+          meta: {
+            layout: adminLayout,
+            transition: "fade",
+          },
+        },
+        {
+          path: "edit/:id",
+          component: () => import("../views/question/Edit.vue"),
+          meta: {
+            layout: adminLayout,
+            transition: "fade",
+          },
+        },
+      ],
+    },
+    {
+      path: "/exam",
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      // component: () => import("../views/question/List.vue"),
+      meta: {
+        layout: adminLayout,
+        transition: "fade",
+        title: "Kho đề thi",
+      },
+      children: [
+        {
+          path: "",
+          component: () => import("../views/exam/List.vue"),
+        },
+        {
+          path: "add",
+          component: () => import("../views/exam/Add.vue"),
+          meta: {
+            layout: adminLayout,
+            transition: "fade",
+          },
+        },
+        {
+          path: "edit/:id",
+          component: () => import("../views/exam/Edit.vue"),
+          meta: {
+            layout: adminLayout,
+            transition: "fade",
+          },
+        },
+      ],
+    },
+    {
+      path: "/type",
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import("../views/type/List.vue"),
+      meta: {
+        layout: adminLayout,
+        transition: "fade",
+        title: "Loại đào tạo",
+      },
     },
     {
       path: "/user",
