@@ -19,12 +19,12 @@ namespace it_template.Areas.V1.Models
 		public int? course_id { get; set; }
 		[ForeignKey("course_id")]
 		public virtual CourseModel? course { get; set; }
-		public int? lesson_id { get; set; }
+		public int lesson_id { get; set; }
 
 		[ForeignKey("lesson_id")]
 		public virtual LessonModel? lesson { get; set; }
 
-		public string? user_id { get; set; }
+		public string user_id { get; set; }
 
 		[ForeignKey("user_id")]
 		public virtual UserModel? user { get; set; }

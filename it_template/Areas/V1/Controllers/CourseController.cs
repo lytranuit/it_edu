@@ -225,24 +225,47 @@ namespace it_template.Areas.V1.Controllers
 		}
 
 		[HttpPost]
-		public async Task<JsonResult> CompleteLesson(int id)
+		public async Task<JsonResult> CompleteLesson(int id, int percent_pass)
 		{
 			var jsonData = new { success = true, message = "" };
 			try
 			{
+				var user_id = UserManager.GetUserId(this.User);
 				var LessonModel = _EduContext.LessonModel.Where(d => d.id == id).FirstOrDefault();
 				if (LessonModel == null)
 					return Json(new { success = false, message = "Không tìm thấy Bài học" });
+
 				var LessonPassModel = new LessonPassModel
 				{
 					lesson_id = id,
 					course_id = LessonModel.course_id,
-					user_id = UserManager.GetUserId(this.User),
+					user_id = user_id,
 					date_pass = DateTime.Now,
 				};
 				_EduContext.Add(LessonPassModel);
+
+				var CoursePassModel = _EduContext.CoursePassModel.Where(d => d.course_id == LessonModel.course_id && d.user_id == user_id).FirstOrDefault();
+				if (CoursePassModel == null)
+				{
+					CoursePassModel = new CoursePassModel
+					{
+						course_id = LessonModel.course_id,
+						user_id = user_id,
+						percent_pass = percent_pass
+					};
+					_EduContext.Add(CoursePassModel);
+				}
+				else
+				{
+					CoursePassModel.percent_pass = percent_pass;
+					if (percent_pass == 100)
+					{
+						CoursePassModel.date_pass = DateTime.Now;
+					}
+					_EduContext.Update(CoursePassModel);
+				}
 				_EduContext.SaveChanges();
-				return Json(new { success = true, data = LessonPassModel });
+				return Json(new { success = true });
 			}
 			catch (Exception ex)
 			{
@@ -321,6 +344,14 @@ namespace it_template.Areas.V1.Controllers
 
 				.FirstOrDefault();
 			return Json(CourseModel);
+		}
+		public JsonResult personInfo(int course_id)
+		{
+			var user_id = UserManager.GetUserId(this.User);
+			var CoursePassModel = _EduContext.CoursePassModel.Where(d => d.user_id == user_id && d.course_id == course_id).FirstOrDefault();
+			var LessonPassmodel = _EduContext.LessonPassModel.Where(d => d.user_id == user_id && d.course_id == course_id).Select(d => d.lesson_id).Distinct().ToList();
+			CoursePassModel.list_lesson_pass = LessonPassmodel;
+			return Json(CoursePassModel);
 		}
 		public void CopyValues<T>(T target, T source)
 		{

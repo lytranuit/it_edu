@@ -8,7 +8,33 @@
           <span>Tổng quan</span>
         </router-link>
       </li>
-
+      <li>
+        <a href="javascript: void(0);">
+          <i class="fab fa-discourse"></i>
+          <span>Khóa học</span>
+          <span class="menu-arrow"><i class="mdi mdi-chevron-down"></i></span>
+        </a>
+        <ul class="nav-second-level" aria-expanded="false">
+          <li class="nav-item">
+            <a href="javascript: void(0);">
+              <i class="ti-control-record"></i>
+              Dành cho tôi
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="javascript: void(0);">
+              <i class="ti-control-record"></i>
+              Khóa đã học
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="javascript: void(0);">
+              <i class="ti-control-record"></i>
+              Yêu cầu khóa học
+            </a>
+          </li>
+        </ul>
+      </li>
       <li>
         <a href="javascript: void(0);">
           <i class="ti-briefcase"></i>

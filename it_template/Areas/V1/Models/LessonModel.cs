@@ -20,7 +20,7 @@ namespace it_template.Areas.V1.Models
 		public string? description { get; set; }
 
 		public int? type { get; set; }
-		public int? course_id { get; set; }
+		public int course_id { get; set; }
 		[ForeignKey("course_id")]
 		public virtual CourseModel? course { get; set; }
 		public int? chapter_id { get; set; }

@@ -20,8 +20,7 @@ export const useCoursesStore1 = defineStore("courses1", () => {
   });
   const personInfo = ref({
     date_pass: null,
-    list_lesson_pass: ["lesson-1", "lesson-2"],
-    current_lesson: "lesson-3",
+    list_lesson_pass: [],
   });
   const chapterList = computed(() => {
     return course.value.chapters;
@@ -78,6 +77,7 @@ export const useCoursesStore1 = defineStore("courses1", () => {
   const percentageCompleted = computed(() => {
     let total = totalLesson.value;
     let list_lesson_pass = personInfo.value.list_lesson_pass || [];
+    list_lesson_pass = [...new Set(list_lesson_pass)];
     let total_lesson_pass = list_lesson_pass.length;
     return Math.round((total_lesson_pass / total) * 100);
   });
@@ -87,6 +87,16 @@ export const useCoursesStore1 = defineStore("courses1", () => {
       .then((res) => res.data)
       .then((res) => {
         course.value = res;
+        return getPersonInfo(res.id);
+      });
+  };
+
+  const getPersonInfo = async (course_id) => {
+    return axiosinstance
+      .get("/v1/course/personInfo?course_id=" + course_id)
+      .then((res) => res.data)
+      .then((res) => {
+        personInfo.value = res;
         return res;
       });
   };
@@ -102,11 +112,8 @@ export const useCoursesStore1 = defineStore("courses1", () => {
   const icon_class_lesson = (lesson) => {
     let lesson_id = lesson.id;
     let list_lesson_pass = personInfo.value.list_lesson_pass;
-    let current_lesson = personInfo.value.current_lesson;
     if (list_lesson_pass.indexOf(lesson_id) != -1) {
       return "fas fa-check-circle text-success";
-    } else if (current_lesson == lesson_id) {
-      return "fas fa-spinner fa-spin text-danger";
     } else if (lesson.type == 1) {
       return "fas fa-font text-danger";
     } else if (lesson.type == 2) {
@@ -123,21 +130,30 @@ export const useCoursesStore1 = defineStore("courses1", () => {
   const toogle_lecture = () => {
     visibleLecture.value = !visibleLecture.value;
   };
+  const completeLesson = async () => {
+    personInfo.value.list_lesson_pass.push(currentLesson.value.id);
+    return await axiosinstance
+      .post(
+        "/v1/course/completeLesson/" + currentLesson.value.id,
+        { percent_pass: percentageCompleted.value },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then((res) => res.data);
+  };
   const clickLesson = async (lesson) => {
     if (waiting.value == true) return;
 
     waiting.value = true;
-    var videoType = [2, 3];
-    console.log(currentLesson.value.type);
+    var videoType = [2, 3, 5];
     if (videoType.indexOf(currentLesson.value.type) == -1) {
-      await axiosinstance
-        .post("/v1/course/completeLesson/" + currentLesson.value.id)
-        .then((res) => res.data)
-        .then((res) => {
-          router.push(
-            "/course/learn/" + course.value.id + "?lesson_id=" + lesson.id
-          );
-        });
+      await completeLesson();
+      router.push(
+        "/course/learn/" + course.value.id + "?lesson_id=" + lesson.id
+      );
     } else {
       confirm.require({
         message:
@@ -154,6 +170,28 @@ export const useCoursesStore1 = defineStore("courses1", () => {
     }
     waiting.value = false;
   };
+  const nextLesson = () => {
+    var findIndex = lessonList.value.findIndex((item) => {
+      return item.id == currentLesson.value.id;
+    });
+    if (findIndex < lessonList.value.length - 1) {
+      var nextId = lessonList.value[findIndex + 1].id;
+      router.push("/course/learn/" + course.value.id + "?lesson_id=" + nextId);
+      return;
+    }
+
+    ////Chúc mừng hoàn thành khóa học
+  };
+  const endVideoYT = (e) => {
+    if (e.data == 0) {
+      completeLesson();
+      nextLesson();
+    }
+  };
+  const endVideo = () => {
+    completeLesson();
+    nextLesson();
+  };
   return {
     waiting,
     visibleLecture,
@@ -166,6 +204,8 @@ export const useCoursesStore1 = defineStore("courses1", () => {
     lessonList,
     totalLesson,
     getData,
+    endVideo,
+    endVideoYT,
     icon_class_lesson,
     setCurrentLesson,
     toogle_lecture,

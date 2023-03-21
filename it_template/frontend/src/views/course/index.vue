@@ -17,12 +17,12 @@
                                 <embed :src="currentLesson.file_up.url"
                                     style="height: 70vh; width: 100%; border: 1px solid white;" type="application/pdf"
                                     v-else-if="currentLesson.type == 4">
-                                <iframe style="height: 70vh; width: 100%; border: 1px solid white;"
-                                    :src="'https://www.youtube.com/embed/' + currentLesson.youtube_id"
-                                    v-else-if="currentLesson.type == 3">
-                                </iframe>
+                                <youtube-iframe :video-id="currentLesson.youtube_id"
+                                    style="height: 70vh; width: 100%; border: 1px solid white;"
+                                    v-else-if="currentLesson.type == 3" playerWidth="100%" playerHeight="100%"
+                                    @state-change="endVideoYT($event)"></youtube-iframe>
                                 <video style="height: 70vh; width: 100%; border: 1px solid white;" autoplay controls
-                                    v-else-if="currentLesson.type == 2">
+                                    v-else-if="currentLesson.type == 2" @ended="endVideo()">
                                     <source :src="currentLesson.file_up.url" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
@@ -149,7 +149,7 @@ const courses_store = useCoursesStore1();
 const { chapterList, totalLesson, personInfo, currentLesson, activeIndex, course, lessonList, waiting, visibleLecture } = storeToRefs(courses_store);
 
 // console.log(currentLesson.value)
-const { toogle_lecture, setCurrentLesson, getData, icon_class_lesson, clickLesson } = courses_store
+const { toogle_lecture, setCurrentLesson, getData, icon_class_lesson, clickLesson, endVideo, endVideoYT } = courses_store
 
 onMounted(() => {
     getData(route.params.id).then(() => {

@@ -2,6 +2,23 @@
 <template>
   <main>
     <div class="row">
+      <div class="col-lg-12 text-right">
+        <div class="text-right">
+          <ul class="list-inline">
+            <li class="list-inline-item">
+              <div class="input-group">
+                <input type="text" id="example-input1-group2" name="example-input1-group2" class="form-control"
+                  placeholder="Search">
+                <span class="input-group-append">
+                  <button type="button" class="btn btn-gradient-primary"><i class="fas fa-search"></i></button>
+                </span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div><!--end col-->
+    </div>
+    <div class="row">
       <div class="col-lg-3" v-for="(course, index) in courses">
         <RouterLink :to="'/course/learn/' + course.id">
           <div class="card">
